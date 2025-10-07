@@ -24,7 +24,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USERNAME }}
+          username: ${{ secrets.GHCR_TOKEN }}
           password: ${{ secrets.GHCR_TOKEN }}
 
       # 4️⃣ Build and push Docker image
@@ -34,7 +34,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ secrets.GHCR_USERNAME }}/nextjs-app:latest
-            ghcr.io/${{ secrets.GHCR_USERNAME }}/nextjs-app:${{ github.sha }}
+            ghcr.io/${{ secrets.GHCR_TOKEN }}/nextjs-app:latest
+            ghcr.io/${{ secrets.GHCR_TOKEN }}/nextjs-app:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
 
