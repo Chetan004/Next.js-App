@@ -18,13 +18,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Step 3: Login to GitHub Container Registry
+      # Step 3: Login to GitHub Container Registry (using built-in token)
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # Step 4: Build and push Docker image
       - name: Build and push image
@@ -32,4 +32,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ secrets.GHCR_USERNAME }}/nextjs-app:latest
+          tags: ghcr.io/${{ github.repository_owner }}/nextjs-app:latest
+
