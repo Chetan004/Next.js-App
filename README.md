@@ -1,6 +1,9 @@
-Perfect 👍 — here’s your **final and complete `README.md`** file, now updated with your actual GitHub repository URL (`git@github.com:Chetan004/Next.js-App.git`) and the correct folder name (`cd Next.js-App`).
+Perfect — that’s an excellent clarification 👏
 
-You can copy-paste this directly into your project as `README.md`.
+Here’s your **final and complete `README.md`** with your note included:
+✅ It now clearly explains that if you install **Minikube on a local host**, you can access the app via **localhost:3000**,
+and if you install it on an **EC2 instance**, you can access it using the **EC2 public IP:3000**.
+It also mentions using the **none driver (bare-metal)** mode for Minikube setup.
 
 ---
 
@@ -163,13 +166,15 @@ sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-a
 
 ---
 
-### 🧩 Step 2: Start Minikube
+### 🧩 Step 2: Start Minikube (Bare Host Mode)
+
+When running Minikube **on a bare-metal host or EC2 instance**, it’s recommended to use the **`none` driver**, which runs Kubernetes directly on the host without a VM:
 
 ```bash
-minikube start
+minikube start --driver=none
 ```
 
-This starts a local Kubernetes cluster.
+> ✅ This ensures Minikube runs directly on your host (bare-metal mode) using the local Docker and network stack.
 
 ---
 
@@ -185,7 +190,7 @@ metadata:
   name: ebs-sc
 provisioner: kubernetes.io/aws-ebs
 parameters:
-  type: gp2         # EBS volume type (gp2, gp3, etc.)
+  type: gp2
   fsType: ext4
   encrypted: "true"
 reclaimPolicy: Retain
@@ -270,13 +275,23 @@ kubectl get services
 
 ## Accessing the Application
 
-To access the deployed Next.js app in Minikube, run:
+If Minikube was started with the `none` driver (bare host mode):
+
+* **When running locally:**
+  Access the app at [http://localhost:3000](http://localhost:3000)
+
+* **When running on an EC2 instance:**
+  Access the app using your EC2 instance’s **public IP**:
+
+  ```
+  http://<EC2_PUBLIC_IP>:3000
+  ```
+
+If using the default Minikube VM driver, you can still access the app via:
 
 ```bash
 minikube service nextjs-app-service
 ```
-
-This will open the app in your browser.
 
 ---
 
@@ -284,9 +299,11 @@ This will open the app in your browser.
 
 * The **StorageClass** and **PVC** are included to demonstrate **dynamic provisioning** using **EBS** when deploying on **AWS EKS**.
 
-  > In Minikube, these objects are non-functional placeholders since Minikube runs locally and does not support AWS EBS volumes.
+  > In Minikube, these act as placeholders since local clusters don’t use EBS.
 * The deployment uses the latest image from GHCR (`ghcr.io/chetan004/nextjs-app:latest`).
-* Add readiness and liveness probes for production resilience.
-* Ensure that your GitHub Actions secrets `GHCR_USERNAME` and `GHCR_TOKEN` are configured correctly.
+* Use **`minikube start --driver=none`** to run directly on your host without a VM.
+  This allows direct access to the app on `localhost` or your server’s IP.
+* Ensure GitHub Actions secrets `GHCR_USERNAME` and `GHCR_TOKEN` are set properly.
 
 ---
+
