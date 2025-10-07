@@ -4,30 +4,37 @@ on:
   push:
     branches:
       - master
-  workflow_dispatch:  # ✅ allows manual run from GitHub Actions tab
+  workflow_dispatch:  # Allows manual run
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2️⃣ Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # 3️⃣ Login to GHCR using secrets
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: chetan004
+          username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Build and push image
+      # 4️⃣ Build and push Docker image
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ghcr.io/chetan004/nextjs-app:latest
+          tags: |
+            ghcr.io/${{ secrets.GHCR_USERNAME }}/nextjs-app:latest
+            ghcr.io/${{ secrets.GHCR_USERNAME }}/nextjs-app:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
 
