@@ -1,0 +1,69 @@
+---
+# 1️⃣ StorageClass for dynamic EBS provisioning
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2         # EBS volume type (gp2, gp3, etc.)
+  fsType: ext4
+  encrypted: "true"
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+---
+# 2️⃣ PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextjs-app-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-sc
+  resources:
+    requests:
+      storage: 5Gi
+---
+# 3️⃣ Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextjs-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextjs-app
+  template:
+    metadata:
+      labels:
+        app: nextjs-app
+    spec:
+      containers:
+        - name: nextjs-app
+          image: ghcr.io/chetan004/nextjs-app:latest
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - mountPath: /app/data   # Path inside container
+              name: nextjs-app-storage
+          imagePullPolicy: Always
+      volumes:
+        - name: nextjs-app-storage
+          persistentVolumeClaim:
+            claimName: nextjs-app-pvc
+---
+# 4️⃣ Service (NodePort)
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-app-service
+spec:
+  selector:
+    app: nextjs-app
+  type: NodePort
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30080
