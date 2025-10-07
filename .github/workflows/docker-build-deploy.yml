@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:  # ✅ allows manual run from GitHub Actions tab
 
 jobs:
   build:
